@@ -8,12 +8,12 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func AddChore(actx *appcontext.AppContext) *cli.Command {
+func GetChore(actx *appcontext.AppContext) *cli.Command {
 	add := cli.Command{
-		Name:           constants.AddCommand,
+		Name:           constants.GetCommand,
 		Aliases:        []string{},
-		Usage:          "add new chore",
-		UsageText:      "choretracler [global options] add [options]",
+		Usage:          "get chore data",
+		UsageText:      "choretracler [global options] get [options]",
 		ArgsUsage:      "",
 		Version:        constants.Version,
 		Description:    "",
@@ -21,11 +21,7 @@ func AddChore(actx *appcontext.AppContext) *cli.Command {
 		Category:       "",
 		Commands:       []*cli.Command{},
 		Flags: []cli.Flag{
-			&flags.TITLE,
-			&flags.DESCRIPTION,
-			&flags.AUTHOR,
-			&flags.SHEDULE,
-			&flags.COMMENT,
+			&flags.ID,
 		},
 		HideHelp:                        false,
 		HideHelpCommand:                 false,
@@ -36,7 +32,7 @@ func AddChore(actx *appcontext.AppContext) *cli.Command {
 		ConfigureShellCompletionCommand: nil,
 		Before:                          nil,
 		After:                           nil,
-		Action:                          actions.Add(actx),
+		Action:                          actions.Get(actx),
 		CommandNotFound:                 nil,
 		OnUsageError:                    nil,
 		InvalidFlagAccessHandler:        nil,

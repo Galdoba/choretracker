@@ -31,7 +31,7 @@ type NotificationConfiguration struct {
 func defaultConfig(paths *xdg.ProgramPaths) Config {
 	return Config{
 		Version:     constants.Version,
-		StoragePath: filepath.Join(paths.PersistentDataDir(), constants.AppName+".json"),
+		StoragePath: filepath.Join(paths.PersistentDataDir(), constants.StorageFile),
 		Log: LoggerConfiguration{
 			Enabled:       true,
 			Level:         "debug",

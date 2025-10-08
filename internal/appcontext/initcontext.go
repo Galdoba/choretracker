@@ -15,6 +15,14 @@ type AppContext struct {
 	log    Logger
 }
 
+func (actx *AppContext) Config() *Config {
+	return actx.config
+}
+
+func (actx *AppContext) GetLogger() Logger {
+	return actx.log
+}
+
 func Init(appname string) (*AppContext, error) {
 	actx := AppContext{}
 

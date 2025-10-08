@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 
 	"github.com/Galdoba/choretracker/internal/models/chore"
@@ -14,7 +15,7 @@ import (
 // JsonStore represents a thread-safe storage for chores using JSON file as persistence
 type JsonStore struct {
 	filepath string
-	Chores   map[int]*chore.Chore `json:"store"`
+	Chores   map[int64]*chore.Chore `json:"store"`
 	mutex    sync.RWMutex
 }
 
@@ -23,7 +24,7 @@ type JsonStore struct {
 // Initializes storage from existing file or creates new storage if file doesn't exist
 // Uses path argument to locate or create the JSON storage file
 func New(path string) (*JsonStore, error) {
-	js := JsonStore{filepath: path, Chores: make(map[int]*chore.Chore)}
+	js := JsonStore{filepath: path, Chores: make(map[int64]*chore.Chore)}
 	switch fileExist(path) {
 	case false:
 		os.MkdirAll(filepath.Dir(path), 0755)
@@ -56,7 +57,7 @@ func New(path string) (*JsonStore, error) {
 // AI generated comment:
 // save writes the current state of JsonStore to the associated JSON file
 func (js *JsonStore) save() error {
-	data, err := json.Marshal(js)
+	data, err := json.MarshalIndent(js, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal JsonStore: %v", err)
 	}
@@ -94,6 +95,10 @@ func (js *JsonStore) Create(ch *chore.Chore) error {
 	}
 
 	js.Chores[ch.ID] = ch
+
+	if err := js.save(); err != nil {
+		return fmt.Errorf("failed to save JsonStore: %v", err)
+	}
 	return nil
 }
 
@@ -121,7 +126,7 @@ func (js *JsonStore) Update(ch *chore.Chore) error {
 // AI generated comment:
 // Read retrieves a chore from storage by its ID
 // Accepts integer ID as argument and returns chore pointer or error if not found
-func (js *JsonStore) Read(id int) (*chore.Chore, error) {
+func (js *JsonStore) Read(id int64) (*chore.Chore, error) {
 	js.mutex.Lock()
 	defer js.mutex.Unlock()
 	if err := js.load(); err != nil {
@@ -140,7 +145,7 @@ func (js *JsonStore) Read(id int) (*chore.Chore, error) {
 // AI generated comment:
 // Delete removes a chore from storage by its ID
 // Accepts integer ID as argument and returns error if chore doesn't exist
-func (js *JsonStore) Delete(id int) error {
+func (js *JsonStore) Delete(id int64) error {
 	js.mutex.Lock()
 	defer js.mutex.Unlock()
 	if err := js.load(); err != nil {
@@ -166,13 +171,18 @@ func (js *JsonStore) GetAll() ([]*chore.Chore, error) {
 	if err := js.load(); err != nil {
 		return nil, fmt.Errorf("failed to load JsonStore: %v", err)
 	}
-
 	chores := []*chore.Chore{}
 	for _, v := range js.Chores {
 		chores = append(chores, v)
-
 	}
+	sortChoresByID(chores)
 	return chores, nil
+}
+
+func sortChoresByID(chores []*chore.Chore) {
+	sort.Slice(chores, func(i, j int) bool {
+		return chores[i].ID < chores[j].ID
+	})
 }
 
 // AI generated comment:

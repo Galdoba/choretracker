@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/actions"
+	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/subcommands"
 	"github.com/Galdoba/choretracker/internal/appcontext"
 	"github.com/Galdoba/choretracker/internal/constants"
@@ -21,8 +22,11 @@ func NewApp(actx *appcontext.AppContext) *cli.Command {
 		Category:       "",
 		Commands: []*cli.Command{
 			subcommands.AddChore(actx),
+			subcommands.GetChore(actx),
 		},
-		Flags:                           []cli.Flag{},
+		Flags: []cli.Flag{
+			&flags.TUI,
+		},
 		HideHelp:                        false,
 		HideHelpCommand:                 false,
 		HideVersion:                     false,
@@ -43,7 +47,7 @@ func NewApp(actx *appcontext.AppContext) *cli.Command {
 		Writer:                          nil,
 		ErrWriter:                       nil,
 		ExitErrHandler:                  nil,
-		Metadata:                        map[string]interface{}{},
+		Metadata:                        map[string]any{},
 		ExtraInfo: func() map[string]string {
 			panic("TODO")
 		},

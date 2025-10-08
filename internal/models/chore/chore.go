@@ -66,10 +66,15 @@ func (ch *Chore) String() string {
 	s := fmt.Sprintf("chore: %v", ch.Title) + "\n"
 	s += fmt.Sprintf("ID: %v", ch.ID) + "\n"
 	s += fmt.Sprintf("started: %v", ch.Opened.Format(time.DateTime)) + "\n"
-	s += fmt.Sprintf("description: %v", ch.Description) + "\n"
+	if ch.Description != "" {
+		s += fmt.Sprintf("description: %v", ch.Description) + "\n"
+	}
 	s += fmt.Sprintf("shedule: %v", ch.CronSchedule) + "\n"
-	s += fmt.Sprintf("next trigger time: %v", ch.NextNotification.Format(time.DateTime))
+	s += fmt.Sprintf("next trigger time: %v", ch.NextNotification.Format(time.DateTime)) + "\n"
+	if ch.Comments != "" {
+		s += fmt.Sprintf("comment: \n%v", ch.Comments)
 
+	}
 	return s
 }
 

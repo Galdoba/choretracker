@@ -1,32 +1,32 @@
-package app
+package subcommands
 
 import (
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/actions"
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
-	"github.com/Galdoba/choretracker/cmd/choretracker/app/subcommands"
 	"github.com/Galdoba/choretracker/internal/appcontext"
 	"github.com/Galdoba/choretracker/internal/constants"
 	"github.com/urfave/cli/v3"
 )
 
-func NewApp(actx *appcontext.AppContext) *cli.Command {
-	cmd := cli.Command{
-		Name:           constants.AppName,
+func UpdateChore(actx *appcontext.AppContext) *cli.Command {
+	add := cli.Command{
+		Name:           constants.UpdateCommand,
 		Aliases:        []string{},
-		Usage:          "",
-		UsageText:      "",
+		Usage:          "update chore data",
+		UsageText:      "choretracker [global options] update [options]",
 		ArgsUsage:      "",
-		Version:        "",
+		Version:        constants.Version,
 		Description:    "",
 		DefaultCommand: "",
 		Category:       "",
-		Commands: []*cli.Command{
-			subcommands.AddChore(actx),
-			subcommands.GetChore(actx),
-			subcommands.UpdateChore(actx),
-		},
+		Commands:       []*cli.Command{},
 		Flags: []cli.Flag{
-			&flags.TUI,
+			&flags.ID,
+			&flags.TITLE,
+			&flags.DESCRIPTION,
+			&flags.AUTHOR,
+			&flags.SHEDULE,
+			&flags.COMMENT,
 		},
 		HideHelp:                        false,
 		HideHelpCommand:                 false,
@@ -37,18 +37,18 @@ func NewApp(actx *appcontext.AppContext) *cli.Command {
 		ConfigureShellCompletionCommand: nil,
 		Before:                          nil,
 		After:                           nil,
-		Action:                          actions.Start(actx),
+		Action:                          actions.Update(actx),
 		CommandNotFound:                 nil,
 		OnUsageError:                    nil,
 		InvalidFlagAccessHandler:        nil,
 		Hidden:                          false,
-		Authors:                         []any{constants.Author},
+		Authors:                         []any{},
 		Copyright:                       "",
 		Reader:                          nil,
 		Writer:                          nil,
 		ErrWriter:                       nil,
 		ExitErrHandler:                  nil,
-		Metadata:                        map[string]any{},
+		Metadata:                        map[string]interface{}{},
 		ExtraInfo: func() map[string]string {
 			panic("TODO")
 		},
@@ -66,5 +66,5 @@ func NewApp(actx *appcontext.AppContext) *cli.Command {
 		Arguments:                     []cli.Argument{},
 		ReadArgsFromStdin:             false,
 	}
-	return &cmd
+	return &add
 }

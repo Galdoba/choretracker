@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	actx, err := appcontext.Init(constants.AppName)
+	actx, err := appcontext.InitCli(constants.AppName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "initiation: %v", err)
 		os.Exit(1)

@@ -51,7 +51,7 @@ func injectFromFlags(c *cli.Command, ch *chore.Chore) {
 	for i, val := range []string{
 		c.String(flags.CHORE_TITLE),
 		c.String(flags.CHORE_DESCRIPTION),
-		c.String(flags.CHORE_SHEDULE),
+		c.String(flags.CHORE_SCHEDULE),
 		c.String(flags.CHORE_COMMENT),
 		c.String(flags.CHORE_AUTHOR),
 	} {

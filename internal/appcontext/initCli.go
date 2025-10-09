@@ -23,7 +23,7 @@ func (actx *AppContext) GetLogger() Logger {
 	return actx.log
 }
 
-func Init(appname string) (*AppContext, error) {
+func InitCli(appname string) (*AppContext, error) {
 	actx := AppContext{}
 
 	paths := xdg.New(constants.AppName)

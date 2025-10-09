@@ -9,7 +9,7 @@ const (
 	CHORE_TITLE       = "title"
 	CHORE_DESCRIPTION = "description"
 	CHORE_AUTHOR      = "author"
-	CHORE_SHEDULE     = "shedule"
+	CHORE_SCHEDULE    = "schedule"
 	CHORE_COMMENT     = "comment"
 	CHORE_ID          = "id"
 )
@@ -38,8 +38,8 @@ var AUTHOR = cli.StringFlag{
 }
 
 var SHEDULE = cli.StringFlag{
-	Name:    CHORE_SHEDULE,
-	Usage:   "use chore shedule variable",
+	Name:    CHORE_SCHEDULE,
+	Usage:   "use chore schedule variable",
 	Aliases: []string{"s"},
 }
 

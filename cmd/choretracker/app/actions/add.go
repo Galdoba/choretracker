@@ -16,7 +16,7 @@ func Add(actx *appcontext.AppContext) cli.ActionFunc {
 	return func(ctx context.Context, c *cli.Command) error {
 		title := c.String(flags.CHORE_TITLE)
 		description := c.String(flags.CHORE_DESCRIPTION)
-		shedule := c.String(flags.CHORE_SHEDULE)
+		shedule := c.String(flags.CHORE_SCHEDULE)
 		comment := c.String(flags.CHORE_COMMENT)
 		author := c.String(flags.CHORE_AUTHOR)
 		opts := []chore.ChoreOption{}

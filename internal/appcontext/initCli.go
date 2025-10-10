@@ -8,11 +8,14 @@ import (
 	"github.com/Galdoba/appcontext/logmanager"
 	"github.com/Galdoba/appcontext/xdg"
 	"github.com/Galdoba/choretracker/internal/constants"
+	"github.com/Galdoba/choretracker/internal/core/ports"
+	"github.com/Galdoba/choretracker/internal/infrastructure"
 )
 
 type AppContext struct {
-	config *Config
-	log    Logger
+	config    *Config
+	log       Logger
+	validator ports.Validator
 }
 
 func (actx *AppContext) Config() *Config {
@@ -21,6 +24,10 @@ func (actx *AppContext) Config() *Config {
 
 func (actx *AppContext) GetLogger() Logger {
 	return actx.log
+}
+
+func (actx *AppContext) GetValidator() ports.Validator {
+	return actx.validator
 }
 
 func InitCli(appname string) (*AppContext, error) {
@@ -62,6 +69,8 @@ func InitCli(appname string) (*AppContext, error) {
 		),
 	)
 	actx.log = logmanager.New(logmanager.WithHandlers(logHandlers...))
+
+	actx.validator = infrastructure.DefaultValidator()
 
 	return &actx, nil
 }

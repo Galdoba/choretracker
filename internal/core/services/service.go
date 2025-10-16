@@ -10,7 +10,6 @@ import (
 	"github.com/Galdoba/choretracker/internal/core/domain"
 	"github.com/Galdoba/choretracker/internal/core/dto"
 	"github.com/Galdoba/choretracker/internal/core/ports"
-	"github.com/Galdoba/choretracker/internal/helpers"
 	"github.com/Galdoba/choretracker/internal/utils"
 	"github.com/Galdoba/choretracker/pkg/cronexpr"
 )
@@ -176,5 +175,5 @@ func updateChore(ch *domain.Chore, r dto.ChoreContent) {
 }
 
 func setUpdated(old string, new *string) string {
-	return helpers.SetUpdatedContent(old, new)
+	return utils.SetUpdatedField(old, new)
 }

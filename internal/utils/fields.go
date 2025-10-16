@@ -1,6 +1,6 @@
-package helpers
+package utils
 
-func SetUpdatedContent(old string, new *string) string {
+func SetUpdatedField(old string, new *string) string {
 	if new == nil {
 		return old
 	}

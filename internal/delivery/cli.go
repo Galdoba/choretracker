@@ -1,31 +1,25 @@
 package delivery
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
-	"github.com/Galdoba/choretracker/internal/appcontext"
 	"github.com/Galdoba/choretracker/internal/constants"
 	"github.com/Galdoba/choretracker/internal/core/dto"
-	"github.com/Galdoba/choretracker/internal/core/services"
-	"github.com/Galdoba/choretracker/internal/infrastructure"
-	st "github.com/Galdoba/choretracker/internal/infrastructure/storage"
 	"github.com/urfave/cli/v3"
 )
 
-func BuildService(actx *appcontext.AppContext) (*services.TaskService, error) {
-	err := errors.New("command not parsed")
-	validator := &infrastructure.Validator{}
-	store, err := st.NewStorage(st.JsonStorage, *actx.Config())
-	logger := actx.GetLogger()
-	if err != nil {
-		return nil, err
-	}
-	ts := services.NewService(store, validator, logger)
-	return ts, nil
-}
+// func BuildService(actx *appcontext.AppContext) (*services.TaskService, error) {
+// 	err := errors.New("command not parsed")
+// 	validator := &infrastructure.Validator{}
+// 	store, err := st.NewStorage(st.JsonStorage, *actx.Config())
+// 	logger := actx.GetLogger()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	ts := services.NewService(store, validator, logger)
+// 	return ts, nil
+// }
 
 // func GetValidator(actx *appcontext.AppContext) (*services.TaskService, error) {
 // 	err := errors.New("command not parsed")

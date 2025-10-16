@@ -5,7 +5,10 @@ import (
 )
 
 const (
-	GLOBAL_CLI        = "cli"
+	GLOBAL_MODE       = "run-mode"
+	VALUE_MODE_CLI    = "cli"
+	VALUE_MODE_TUI    = "tui"
+	VALUE_MODE_SERVER = "server"
 	CHORE_TITLE       = "title"
 	CHORE_DESCRIPTION = "description"
 	CHORE_AUTHOR      = "author"
@@ -14,9 +17,11 @@ const (
 	CHORE_ID          = "id"
 )
 
-var TUI = cli.BoolFlag{
-	Name:  GLOBAL_CLI,
-	Usage: "run in cli-mode",
+var MODE = cli.StringFlag{
+	Name:        GLOBAL_MODE,
+	Usage:       "'tui', 'cli' or 'server'",
+	DefaultText: "tui",
+	Value:       "tui",
 }
 
 var TITLE = cli.StringFlag{

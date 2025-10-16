@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/Galdoba/choretracker/internal/models/chore"
+	"github.com/Galdoba/choretracker/internal/core/domain"
 	"github.com/Galdoba/choretracker/internal/storage/ims"
 	"github.com/Galdoba/choretracker/internal/storage/js"
 )
@@ -19,9 +19,9 @@ var store *storageManager
 // }
 
 type Storage interface {
-	Create(*chore.Chore) error
-	Update(*chore.Chore) error
-	Read(int) (*chore.Chore, error)
-	Delete(*chore.Chore) error
-	GetAll() ([]*chore.Chore, error)
+	Create(domain.Chore) error
+	Update(domain.Chore) error
+	Read(int) (domain.Chore, error)
+	Delete(domain.Chore) error
+	GetAll() ([]domain.Chore, error)
 }

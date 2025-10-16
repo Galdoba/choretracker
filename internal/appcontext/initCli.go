@@ -44,8 +44,8 @@ func InitCli(appname string) (*AppContext, error) {
 				logmanager.StringToLevel(actx.config.Log.Level),
 				logmanager.NewTextFormatter(
 					logmanager.WithTimePrecision(0),
-					logmanager.WithLevelTag(false),
-					logmanager.WithColor(actx.config.Log.ConsoleColors),
+					logmanager.WithLevelTag(true),
+					logmanager.WithColor(true),
 				),
 			),
 		)

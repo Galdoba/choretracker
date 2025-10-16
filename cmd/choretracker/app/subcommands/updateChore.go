@@ -37,7 +37,7 @@ func UpdateChore(actx *appcontext.AppContext) *cli.Command {
 		ConfigureShellCompletionCommand: nil,
 		Before:                          nil,
 		After:                           nil,
-		Action:                          actions.Update(actx),
+		Action:                          actions.UpdateAction(actx),
 		CommandNotFound:                 nil,
 		OnUsageError:                    nil,
 		InvalidFlagAccessHandler:        nil,

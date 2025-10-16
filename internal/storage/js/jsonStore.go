@@ -8,14 +8,14 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/Galdoba/choretracker/internal/models/chore"
+	"github.com/Galdoba/choretracker/internal/core/domain"
 )
 
 // AI generated comment:
 // JsonStore represents a thread-safe storage for chores using JSON file as persistence
 type JsonStore struct {
 	filepath string
-	Chores   map[int64]*chore.Chore `json:"store"`
+	Chores   map[int64]domain.Chore `json:"store"`
 	mutex    sync.RWMutex
 }
 
@@ -24,7 +24,7 @@ type JsonStore struct {
 // Initializes storage from existing file or creates new storage if file doesn't exist
 // Uses path argument to locate or create the JSON storage file
 func New(path string) (*JsonStore, error) {
-	js := JsonStore{filepath: path, Chores: make(map[int64]*chore.Chore)}
+	js := JsonStore{filepath: path, Chores: make(map[int64]domain.Chore)}
 	switch fileExist(path) {
 	case false:
 		os.MkdirAll(filepath.Dir(path), 0755)
@@ -83,7 +83,7 @@ func (js *JsonStore) load() error {
 // AI generated comment:
 // Create adds a new chore to the storage
 // Accepts a chore.Chore pointer as argument and returns error if chore already exists
-func (js *JsonStore) Create(ch *chore.Chore) error {
+func (js *JsonStore) Create(ch domain.Chore) error {
 	js.mutex.Lock()
 	defer js.mutex.Unlock()
 	if err := js.load(); err != nil {
@@ -105,7 +105,7 @@ func (js *JsonStore) Create(ch *chore.Chore) error {
 // AI generated comment:
 // Update modifies an existing chore in the storage
 // Accepts a chore.Chore pointer as argument and returns error if chore doesn't exist
-func (js *JsonStore) Update(ch *chore.Chore) error {
+func (js *JsonStore) Update(ch domain.Chore) error {
 	js.mutex.Lock()
 	defer js.mutex.Unlock()
 	if err := js.load(); err != nil {
@@ -126,17 +126,18 @@ func (js *JsonStore) Update(ch *chore.Chore) error {
 // AI generated comment:
 // Read retrieves a chore from storage by its ID
 // Accepts integer ID as argument and returns chore pointer or error if not found
-func (js *JsonStore) Read(id int64) (*chore.Chore, error) {
+func (js *JsonStore) Read(id int64) (domain.Chore, error) {
+	ch := domain.Chore{}
 	js.mutex.Lock()
 	defer js.mutex.Unlock()
 	if err := js.load(); err != nil {
-		return nil, fmt.Errorf("failed to load JsonStore: %v", err)
+		return ch, fmt.Errorf("failed to load JsonStore: %v", err)
 	}
 
 	ch, ok := js.Chores[id]
 	switch ok {
 	default:
-		return nil, fmt.Errorf("chore %v does not exist", id)
+		return ch, fmt.Errorf("chore %v does not exist", id)
 	case true:
 		return ch, nil
 	}
@@ -165,13 +166,13 @@ func (js *JsonStore) Delete(id int64) error {
 
 // AI generated comment:
 // GetAll returns all chores from the storage as a slice of chore pointers
-func (js *JsonStore) GetAll() ([]*chore.Chore, error) {
+func (js *JsonStore) GetAll() ([]domain.Chore, error) {
 	js.mutex.Lock()
 	defer js.mutex.Unlock()
 	if err := js.load(); err != nil {
 		return nil, fmt.Errorf("failed to load JsonStore: %v", err)
 	}
-	chores := []*chore.Chore{}
+	chores := []domain.Chore{}
 	for _, v := range js.Chores {
 		chores = append(chores, v)
 	}
@@ -179,7 +180,7 @@ func (js *JsonStore) GetAll() ([]*chore.Chore, error) {
 	return chores, nil
 }
 
-func sortChoresByID(chores []*chore.Chore) {
+func sortChoresByID(chores []domain.Chore) {
 	sort.Slice(chores, func(i, j int) bool {
 		return chores[i].ID < chores[j].ID
 	})

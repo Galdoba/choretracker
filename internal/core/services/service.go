@@ -11,6 +11,7 @@ import (
 	"github.com/Galdoba/choretracker/internal/core/dto"
 	"github.com/Galdoba/choretracker/internal/core/ports"
 	"github.com/Galdoba/choretracker/internal/helpers"
+	"github.com/Galdoba/choretracker/internal/utils"
 	"github.com/Galdoba/choretracker/pkg/cronexpr"
 )
 
@@ -95,15 +96,19 @@ func (ts TaskService) logError(msg string, err error) error {
 }
 
 func loadFromStorage(ts *TaskService, id *int64) (domain.Chore, error) {
-	for _, err := range []bool{id == nil, *id == 0} {
+	if id == nil {
+		return domain.Chore{}, utils.LogError(ts.Logger, "chore id not provided", nil)
+	}
+
+	for _, err := range []bool{*id == 0} {
 		if err {
-			return domain.Chore{}, ts.logError("chore id not provided", nil)
+			return domain.Chore{}, utils.LogError(ts.Logger, "id can't be equal to 0", nil)
 		}
 	}
 
 	ch, err := ts.Storage.Read(*id)
 	if err != nil {
-		return domain.Chore{}, ts.logError("failed to read chore from storage", err)
+		return domain.Chore{}, utils.LogError(ts.Logger, "failed to read from storage", err)
 	}
 	return ch, nil
 }
@@ -113,7 +118,7 @@ func (ts *TaskService) ReadTask(r dto.ReadRequest) (domain.Chore, error) {
 	if err != nil {
 		return domain.Chore{}, err
 	}
-
+	ts.Logger.Infof("chore read: %v", ch.Key())
 	return ch, nil
 }
 

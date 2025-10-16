@@ -36,7 +36,7 @@ func AddChore(actx *appcontext.AppContext) *cli.Command {
 		ConfigureShellCompletionCommand: nil,
 		Before:                          nil,
 		After:                           nil,
-		Action:                          actions.Add(actx),
+		Action:                          actions.AddAction(actx),
 		CommandNotFound:                 nil,
 		OnUsageError:                    nil,
 		InvalidFlagAccessHandler:        nil,

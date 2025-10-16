@@ -32,7 +32,7 @@ func GetChore(actx *appcontext.AppContext) *cli.Command {
 		ConfigureShellCompletionCommand: nil,
 		Before:                          nil,
 		After:                           nil,
-		Action:                          actions.Get(actx),
+		Action:                          actions.GetAction(actx),
 		CommandNotFound:                 nil,
 		OnUsageError:                    nil,
 		InvalidFlagAccessHandler:        nil,

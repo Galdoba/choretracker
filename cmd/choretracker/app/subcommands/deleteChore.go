@@ -5,7 +5,7 @@ import (
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
 	"github.com/Galdoba/choretracker/internal/appcontext"
 	"github.com/Galdoba/choretracker/internal/constants"
-	"github.com/urfave/cli/v3"
+	cli "github.com/urfave/cli/v3"
 )
 
 func DeleteChore(actx *appcontext.AppContext) *cli.Command {
@@ -32,7 +32,7 @@ func DeleteChore(actx *appcontext.AppContext) *cli.Command {
 		ConfigureShellCompletionCommand: nil,
 		Before:                          nil,
 		After:                           nil,
-		Action:                          actions.Delete(actx),
+		Action:                          actions.DeleteAction(actx),
 		CommandNotFound:                 nil,
 		OnUsageError:                    nil,
 		InvalidFlagAccessHandler:        nil,

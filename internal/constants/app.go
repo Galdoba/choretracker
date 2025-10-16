@@ -3,7 +3,7 @@ package constants
 // App
 const (
 	AppName     = "choretracker"
-	Version     = "0.1.3"
+	Version     = "0.2.0"
 	Author      = "galdoba"
 	StorageFile = "chores.json"
 )

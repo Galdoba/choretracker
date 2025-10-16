@@ -1,124 +1,115 @@
 package chore
 
-import (
-	"fmt"
-	"os/user"
-	"path/filepath"
-	"time"
+// type Chore struct {
+// 	ID               int64     `json:"id"`
+// 	Title            string    `json:"title"`
+// 	Description      string    `json:"description,omitempty"`
+// 	Author           string    `json:"author"`
+// 	Opened           time.Time `json:"opened"`
+// 	NextNotification time.Time `json:"next notification"`
+// 	CronSchedule     string    `json:"schedule"`
+// 	Comments         string    `json:"comments,omitempty"`
+// }
 
-	"github.com/Galdoba/choretracker/pkg/cronexpr"
-)
+// func NewChore(knownFields ...ChoreOption) (*Chore, error) {
+// 	ch := &Chore{}
+// 	openTime := time.Now()
+// 	ch.ID = openTime.Unix()
+// 	ch.Opened = openTime
+// 	for _, addFieldTo := range knownFields {
+// 		addFieldTo(ch)
+// 	}
 
-type Chore struct {
-	ID               int64     `json:"id"`
-	Title            string    `json:"title"`
-	Description      string    `json:"description,omitempty"`
-	Author           string    `json:"author"`
-	Opened           time.Time `json:"opened"`
-	NextNotification time.Time `json:"next notification"`
-	CronSchedule     string    `json:"schedule"`
-	Comments         string    `json:"comments,omitempty"`
-}
+// 	if ch.Author == "" {
+// 		currentUser, err := user.Current()
+// 		if err != nil {
+// 			return nil, fmt.Errorf("failed to get current username: %v", err)
+// 		}
+// 		ch.Author = filepath.Base(currentUser.Username)
+// 	}
 
-func NewChore(knownFields ...ChoreOption) (*Chore, error) {
-	ch := &Chore{}
-	openTime := time.Now()
-	ch.ID = openTime.Unix()
-	ch.Opened = openTime
-	for _, addFieldTo := range knownFields {
-		addFieldTo(ch)
-	}
+// 	ch.Update()
 
-	if ch.Author == "" {
-		currentUser, err := user.Current()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get current username: %v", err)
-		}
-		ch.Author = filepath.Base(currentUser.Username)
-	}
+// 	return ch, nil
+// }
 
-	ch.Update()
+// func (ch *Chore) Update() error {
+// 	if err := validateCronExpression(ch.CronSchedule); err != nil {
+// 		return fmt.Errorf("chore shedule validation failed: %v", err)
+// 	}
+// 	exp := cronexpr.MustParse(ch.CronSchedule)
+// 	ch.NextNotification = exp.Next(time.Now())
+// 	return nil
+// }
 
-	return ch, nil
-}
+// func validateCronExpression(expression string) error {
+// 	if expression == "" {
+// 		return fmt.Errorf("shedule is not set")
+// 	}
+// 	_, err := cronexpr.Parse(expression)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to parse cron shedule: %v", err)
+// 	}
+// 	return nil
+// }
 
-func (ch *Chore) Update() error {
-	if err := validateCronExpression(ch.CronSchedule); err != nil {
-		return fmt.Errorf("chore shedule validation failed: %v", err)
-	}
-	exp := cronexpr.MustParse(ch.CronSchedule)
-	ch.NextNotification = exp.Next(time.Now())
-	return nil
-}
+// func (ch *Chore) String() string {
+// 	s := fmt.Sprintf("chore: %v", ch.Title) + "\n"
+// 	s += fmt.Sprintf("ID: %v", ch.ID) + "\n"
+// 	s += fmt.Sprintf("started: %v", ch.Opened.Format(time.DateTime)) + "\n"
+// 	if ch.Description != "" {
+// 		s += fmt.Sprintf("description: %v", ch.Description) + "\n"
+// 	}
+// 	s += fmt.Sprintf("shedule: %v", ch.CronSchedule) + "\n"
+// 	s += fmt.Sprintf("next trigger time: %v", ch.NextNotification.Format(time.DateTime)) + "\n"
+// 	if ch.Comments != "" {
+// 		s += fmt.Sprintf("comment: \n%v", ch.Comments)
 
-func validateCronExpression(expression string) error {
-	if expression == "" {
-		return fmt.Errorf("shedule is not set")
-	}
-	_, err := cronexpr.Parse(expression)
-	if err != nil {
-		return fmt.Errorf("failed to parse cron shedule: %v", err)
-	}
-	return nil
-}
+// 	}
+// 	return s
+// }
 
-func (ch *Chore) String() string {
-	s := fmt.Sprintf("chore: %v", ch.Title) + "\n"
-	s += fmt.Sprintf("ID: %v", ch.ID) + "\n"
-	s += fmt.Sprintf("started: %v", ch.Opened.Format(time.DateTime)) + "\n"
-	if ch.Description != "" {
-		s += fmt.Sprintf("description: %v", ch.Description) + "\n"
-	}
-	s += fmt.Sprintf("shedule: %v", ch.CronSchedule) + "\n"
-	s += fmt.Sprintf("next trigger time: %v", ch.NextNotification.Format(time.DateTime)) + "\n"
-	if ch.Comments != "" {
-		s += fmt.Sprintf("comment: \n%v", ch.Comments)
+// func (ch *Chore) Validate() error {
+// 	if ch.Title == "" {
+// 		return fmt.Errorf("chore name is not set")
+// 	}
+// 	if ch.ID == 0 {
+// 		return fmt.Errorf("chore ID is not set")
+// 	}
+// 	if err := validateCronExpression(ch.CronSchedule); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
-	}
-	return s
-}
+// type ChoreOption func(*Chore)
 
-func (ch *Chore) Validate() error {
-	if ch.Title == "" {
-		return fmt.Errorf("chore name is not set")
-	}
-	if ch.ID == 0 {
-		return fmt.Errorf("chore ID is not set")
-	}
-	if err := validateCronExpression(ch.CronSchedule); err != nil {
-		return err
-	}
-	return nil
-}
+// func WithTitle(title string) ChoreOption {
+// 	return func(c *Chore) {
+// 		c.Title = title
+// 	}
+// }
 
-type ChoreOption func(*Chore)
+// func WithDescription(descr string) ChoreOption {
+// 	return func(c *Chore) {
+// 		c.Description = descr
+// 	}
+// }
 
-func WithTitle(title string) ChoreOption {
-	return func(c *Chore) {
-		c.Title = title
-	}
-}
+// func WithAuthor(author string) ChoreOption {
+// 	return func(c *Chore) {
+// 		c.Author = author
+// 	}
+// }
 
-func WithDescription(descr string) ChoreOption {
-	return func(c *Chore) {
-		c.Description = descr
-	}
-}
+// func WithShedule(shedule string) ChoreOption {
+// 	return func(c *Chore) {
+// 		c.CronSchedule = shedule
+// 	}
+// }
 
-func WithAuthor(author string) ChoreOption {
-	return func(c *Chore) {
-		c.Author = author
-	}
-}
-
-func WithShedule(shedule string) ChoreOption {
-	return func(c *Chore) {
-		c.CronSchedule = shedule
-	}
-}
-
-func WithComment(comment string) ChoreOption {
-	return func(c *Chore) {
-		c.Comments = comment
-	}
-}
+// func WithComment(comment string) ChoreOption {
+// 	return func(c *Chore) {
+// 		c.Comments = comment
+// 	}
+// }

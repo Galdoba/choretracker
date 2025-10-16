@@ -27,7 +27,7 @@ func NewApp(actx *appcontext.AppContext) *cli.Command {
 			subcommands.DeleteChore(actx),
 		},
 		Flags: []cli.Flag{
-			&flags.TUI,
+			&flags.MODE,
 		},
 		HideHelp:                        false,
 		HideHelpCommand:                 false,

@@ -1,7 +1,10 @@
 package ports
 
-import "github.com/Galdoba/choretracker/internal/core/domain"
+import (
+	"github.com/Galdoba/choretracker/internal/core/dto"
+)
 
 type Validator interface {
-	Validate(domain.Chore) error
+	ValidateRequest(dto.ToServiceRequest) error
+	ValidateResponse(dto.FromServiceResponce) error
 }

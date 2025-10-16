@@ -1,4 +1,4 @@
-package delivery
+package parser
 
 import (
 	"fmt"
@@ -9,37 +9,13 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// func BuildService(actx *appcontext.AppContext) (*services.TaskService, error) {
-// 	err := errors.New("command not parsed")
-// 	validator := &infrastructure.Validator{}
-// 	store, err := st.NewStorage(st.JsonStorage, *actx.Config())
-// 	logger := actx.GetLogger()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	ts := services.NewService(store, validator, logger)
-// 	return ts, nil
-// }
-
-// func GetValidator(actx *appcontext.AppContext) (*services.TaskService, error) {
-// 	err := errors.New("command not parsed")
-// 	validator := &infrastructure.Validator{}
-// 	store, err := st.NewStorage(st.JsonStorage, *actx.Config())
-// 	logger := actx.GetLogger()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	ts := services.NewService(store, validator, logger)
-// 	return ts, nil
-// }
-
 func ParseCliArgsCreate(c *cli.Command) (dto.CreateRequest, error) {
 	r := dto.CreateRequest{}
 	switch c.Name {
 	case constants.AddCommand:
 		r.ChoreContent = parseContent(c)
 	default:
-		return r, fmt.Errorf("command '%v' does not use CreateRequest")
+		return r, fmt.Errorf("command '%v' does not use CreateRequest", c.Name)
 	}
 	return r, nil
 }
@@ -50,7 +26,7 @@ func ParseCliArgsRead(c *cli.Command) (dto.ReadRequest, error) {
 	case constants.GetCommand:
 		r.ChoreIdentity = parseID(c)
 	default:
-		return r, fmt.Errorf("command '%v' does not use ReadRequest")
+		return r, fmt.Errorf("command '%v' does not use ReadRequest", c.Name)
 	}
 	return r, nil
 }
@@ -62,7 +38,7 @@ func ParseCliArgsUpdate(c *cli.Command) (dto.UpdateRequest, error) {
 		r.ChoreIdentity = parseID(c)
 		r.ChoreContent = parseContent(c)
 	default:
-		return r, fmt.Errorf("command '%v' does not use UpdateRequest")
+		return r, fmt.Errorf("command '%v' does not use UpdateRequest", c.Name)
 	}
 	return r, nil
 }
@@ -73,7 +49,7 @@ func ParseCliArgsDelete(c *cli.Command) (dto.DeleteRequest, error) {
 	case constants.DeleteCommand:
 		r.ChoreIdentity = parseID(c)
 	default:
-		return r, fmt.Errorf("command '%v' does not use DeleteRequest")
+		return r, fmt.Errorf("command '%v' does not use DeleteRequest", c.Name)
 	}
 	return r, nil
 }

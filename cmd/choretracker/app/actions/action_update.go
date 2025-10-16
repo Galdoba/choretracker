@@ -8,7 +8,8 @@ import (
 	"github.com/Galdoba/choretracker/internal/appcontext"
 	"github.com/Galdoba/choretracker/internal/core/domain"
 	"github.com/Galdoba/choretracker/internal/core/dto"
-	"github.com/Galdoba/choretracker/internal/delivery"
+	"github.com/Galdoba/choretracker/internal/delivery/parser"
+	"github.com/Galdoba/choretracker/internal/delivery/tui"
 	"github.com/Galdoba/choretracker/internal/utils"
 	"github.com/urfave/cli/v3"
 )
@@ -20,7 +21,7 @@ func UpdateAction(actx *appcontext.AppContext) cli.ActionFunc {
 			return fmt.Errorf("failed to start service: %v", err)
 		}
 
-		r, err := delivery.ParseCliArgsUpdate(c)
+		r, err := parser.ParseCliArgsUpdate(c)
 		if err != nil {
 			ts.Logger.Errorf("failed to parse request: %v", err)
 			return fmt.Errorf("failed to parse request: %v", err)
@@ -44,7 +45,7 @@ func UpdateAction(actx *appcontext.AppContext) cli.ActionFunc {
 				return err
 			}
 			r = injectEmptyFields(r, chr)
-			r, err = delivery.EditUpdateRequest(r)
+			r, err = tui.EditUpdateRequest(r)
 			if err != nil {
 				return utils.LogError(ts.Logger, "failed to edit request", err)
 			}

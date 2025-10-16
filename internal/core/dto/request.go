@@ -1,6 +1,22 @@
 package dto
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
+
+const (
+	Create = "create"
+	Read   = "read"
+	Update = "update"
+	Delete = "delete"
+)
+
+type ToServiceRequest struct {
+	Action   string `json:"action" validate:"required"`
+	Identity ChoreIdentity
+	Fields   ChoreContent
+}
 
 type ChoreIdentity struct {
 	ID *int64 `json:"id" validate:"required"`
@@ -13,6 +29,24 @@ type ChoreContent struct {
 	Schedule    *string `json:"schedule" validate:"omitempty"`
 	Comment     *string `json:"comment" validate:"omitempty"`
 }
+
+func UnmarshalRequest(data []byte) (ToServiceRequest, error) {
+	req := ToServiceRequest{}
+	if err := json.Unmarshal(data, &req); err != nil {
+		return req, fmt.Errorf("failed to unmarshal request: %v", err)
+	}
+	return req, nil
+}
+
+func (req *ToServiceRequest) Id() *int64 {
+	return req.Identity.ID
+}
+
+func (req *ToServiceRequest) Content() ChoreContent {
+	return req.Fields
+}
+
+///////////////////////depreacated
 
 type CreateRequest struct {
 	ChoreContent

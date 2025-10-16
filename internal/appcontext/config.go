@@ -5,6 +5,7 @@ import (
 
 	"github.com/Galdoba/appcontext/xdg"
 	"github.com/Galdoba/choretracker/internal/constants"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
@@ -49,4 +50,16 @@ func defaultConfig(paths *xdg.ProgramPaths) Config {
 			},
 		},
 	}
+}
+
+func (cfg *Config) String() string {
+	s := ""
+	data, err := toml.Marshal(cfg)
+	switch err == nil {
+	case false:
+		s += err.Error()
+	case true:
+		s = string(data)
+	}
+	return s
 }

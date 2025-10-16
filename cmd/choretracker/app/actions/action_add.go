@@ -6,7 +6,8 @@ import (
 
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
 	"github.com/Galdoba/choretracker/internal/appcontext"
-	"github.com/Galdoba/choretracker/internal/delivery"
+	"github.com/Galdoba/choretracker/internal/delivery/parser"
+	"github.com/Galdoba/choretracker/internal/delivery/tui"
 	"github.com/Galdoba/choretracker/internal/utils"
 	"github.com/urfave/cli/v3"
 )
@@ -18,7 +19,7 @@ func AddAction(actx *appcontext.AppContext) cli.ActionFunc {
 			return fmt.Errorf("failed to start service: %v", err)
 		}
 
-		r, err := delivery.ParseCliArgsCreate(c)
+		r, err := parser.ParseCliArgsCreate(c)
 		if err != nil {
 			ts.Logger.Errorf("failed to parse request: %v", err)
 			return fmt.Errorf("failed to parse request: %v", err)
@@ -28,7 +29,7 @@ func AddAction(actx *appcontext.AppContext) cli.ActionFunc {
 		case flags.VALUE_MODE_CLI:
 			//do nothing: expected to have data from flags --title and --shedule
 		case flags.VALUE_MODE_TUI:
-			r, err = delivery.EditCreateRequest(r)
+			r, err = tui.EditCreateRequest(r)
 			if err != nil {
 				return utils.LogError(ts.Logger, "failed to edit request", err)
 			}

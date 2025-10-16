@@ -3,6 +3,7 @@ package appcontext
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/Galdoba/appcontext/configmanager"
 	"github.com/Galdoba/appcontext/logmanager"
@@ -10,9 +11,15 @@ import (
 	"github.com/Galdoba/choretracker/internal/constants"
 )
 
+const (
+	config  = "config"
+	logfile = "logfile"
+)
+
 type AppContext struct {
 	config *Config
 	log    Logger
+	paths  map[string]string
 }
 
 func (actx *AppContext) Config() *Config {
@@ -23,10 +30,21 @@ func (actx *AppContext) GetLogger() Logger {
 	return actx.log
 }
 
+func (actx *AppContext) ConfigPath() string {
+	return actx.paths[config]
+}
+
+func (actx *AppContext) LogfilePath() string {
+	return actx.paths[logfile]
+}
+
 func InitCli(appname string) (*AppContext, error) {
 	actx := AppContext{}
+	actx.paths = make(map[string]string)
 
 	paths := xdg.New(constants.AppName)
+	actx.paths[config] = paths.ConfigFile()
+	actx.paths[logfile] = paths.LogFile()
 
 	cfgman, err := configmanager.New(appname, defaultConfig(paths))
 	if err != nil {
@@ -56,12 +74,27 @@ func InitCli(appname string) (*AppContext, error) {
 			logmanager.LevelDebug,
 			logmanager.NewTextFormatter(
 				logmanager.WithTimePrecision(0),
-				logmanager.WithLevelTag(false),
+				logmanager.WithLevelTag(true),
 				logmanager.WithColor(false),
 			),
 		),
 	)
 	actx.log = logmanager.New(logmanager.WithHandlers(logHandlers...))
-
+	if err := confirmFile(actx.ConfigPath()); err != nil {
+		return nil, err
+	}
+	if err := confirmFile(actx.LogfilePath()); err != nil {
+		return nil, err
+	}
 	return &actx, nil
+}
+
+func confirmFile(path string) error {
+	os.MkdirAll(filepath.Dir(path), 0755)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %v", err)
+	}
+	defer f.Close()
+	return nil
 }

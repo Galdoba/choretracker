@@ -11,7 +11,7 @@ import (
 	"github.com/Galdoba/choretracker/internal/core/dto"
 	"github.com/Galdoba/choretracker/internal/core/ports"
 	"github.com/Galdoba/choretracker/internal/core/services"
-	"github.com/Galdoba/choretracker/internal/delivery"
+	"github.com/Galdoba/choretracker/internal/delivery/parser"
 	"github.com/Galdoba/choretracker/internal/infrastructure"
 	"github.com/Galdoba/choretracker/internal/infrastructure/storage"
 	"github.com/Galdoba/choretracker/internal/utils"
@@ -26,7 +26,7 @@ func GetAction(actx *appcontext.AppContext) cli.ActionFunc {
 			return fmt.Errorf("failed to start service: %v", err)
 		}
 
-		r, err := delivery.ParseCliArgsRead(c)
+		r, err := parser.ParseCliArgsRead(c)
 		if err != nil {
 			ts.Logger.Errorf("failed to parse request: %v", err)
 			return fmt.Errorf("failed to parse request: %v", err)

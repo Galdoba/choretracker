@@ -6,7 +6,7 @@ import (
 
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
 	"github.com/Galdoba/choretracker/internal/appcontext"
-	"github.com/Galdoba/choretracker/internal/delivery"
+	"github.com/Galdoba/choretracker/internal/delivery/parser"
 	"github.com/urfave/cli/v3"
 )
 
@@ -16,8 +16,7 @@ func DeleteAction(actx *appcontext.AppContext) cli.ActionFunc {
 		if err != nil {
 			return fmt.Errorf("failed to start service: %v", err)
 		}
-
-		r, err := delivery.ParseCliArgsDelete(c)
+		r, err := parser.ParseCliArgsDelete(c)
 		if err != nil {
 			ts.Logger.Errorf("failed to parse request: %v", err)
 			return fmt.Errorf("failed to parse request: %v", err)

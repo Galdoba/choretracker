@@ -32,21 +32,46 @@ type TaskRequest interface {
 	dto.CreateRequest | dto.ReadRequest | dto.UpdateRequest | dto.DeleteRequest
 }
 
-func HandleRequest[T TaskRequest](ts *TaskService, req T) (domain.Chore, error) {
-	switch r := any(req).(type) {
-	case dto.CreateRequest:
-		return domain.Chore{}, ts.CreateTask(r)
-	case dto.ReadRequest:
-		return ts.ReadTask(r)
-	case dto.UpdateRequest:
-		return domain.Chore{}, ts.UpdateTask(r)
-	case dto.DeleteRequest:
-		return domain.Chore{}, ts.DeleteTask(r)
-	}
-	return domain.Chore{}, ts.logError("request is of unknown type", nil)
+func (ts *TaskService) ServeRequest(req *dto.ToServiceRequest) (dto.FromServiceResponce, error) {
+	panic("HANDLE REQUEST FUNC")
 }
 
-func (ts *TaskService) CreateTask(r dto.CreateRequest) error {
+// func HandleRequest[T TaskRequest](ts *TaskService, req T) (domain.Chore, error) {
+// 	switch r := any(req).(type) {
+// 	case dto.CreateRequest:
+// 		return domain.Chore{}, ts.CreateTask(r)
+// 	case dto.ReadRequest:
+// 		return ts.ReadTask(r)
+// 	case dto.UpdateRequest:
+// 		return domain.Chore{}, ts.UpdateTask(r)
+// 	case dto.DeleteRequest:
+// 		return domain.Chore{}, ts.DeleteTask(r)
+// 	}
+// 	return domain.Chore{}, ts.logError("request is of unknown type", nil)
+// }
+
+// func (ts *TaskService) CreateTask(r dto.CreateRequest) error {
+// 	ch, err := newChore(r)
+// 	if err != nil {
+// 		ts.logError("failed to create new chore", err)
+// 	}
+// 	if err := ts.Validator.Validate(ch); err != nil {
+// 		return ts.logError("failed to validate chore", err)
+// 	}
+// 	if err := updateNotificationTime(&ch); err != nil {
+// 		return ts.logError("failed to update notification time", err)
+// 	}
+// 	if err := ts.Storage.Create(ch); err != nil {
+// 		return ts.logError("failed to create chore in storage", err)
+// 	}
+// 	ts.Logger.Infof("new chore created: %v", ch.Key())
+// 	return nil
+// }
+
+func (ts *TaskService) CreateTask(r dto.ToServiceRequest) error {
+	if err := ts.Validator.ValidateRequest(r); err != nil {
+		return utils.LogError(ts.Logger, "invalid request", err)
+	}
 	ch, err := newChore(r)
 	if err != nil {
 		ts.logError("failed to create new chore", err)
@@ -70,6 +95,27 @@ func newChore(cr dto.CreateRequest) (domain.Chore, error) {
 	ch.ID = openTime.Unix()
 	ch.Opened = openTime
 	updateChore(&ch, cr.Content())
+
+	if ch.Author == "" {
+		currentUser, err := user.Current()
+		if err != nil {
+			return ch, fmt.Errorf("failed to get current username: %v", err)
+		}
+		ch.Author = filepath.Base(currentUser.Username)
+	}
+
+	return ch, nil
+}
+
+func newChoreFromRequest(req dto.ToServiceRequest) (domain.Chore, error) {
+	ch := domain.Chore{}
+	if req.Action != dto.Create {
+		return ch, fmt.Errorf("request type is not '%v'", dto.Create)
+	}
+	openTime := time.Now()
+	ch.ID = openTime.Unix()
+	ch.Opened = openTime
+	updateChore(&ch, req.Content())
 
 	if ch.Author == "" {
 		currentUser, err := user.Current()

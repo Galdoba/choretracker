@@ -6,5 +6,4 @@ import (
 
 type Validator interface {
 	ValidateRequest(dto.ToServiceRequest) error
-	ValidateResponse(dto.FromServiceResponce) error
 }

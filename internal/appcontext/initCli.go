@@ -9,6 +9,9 @@ import (
 	"github.com/Galdoba/appcontext/logmanager"
 	"github.com/Galdoba/appcontext/xdg"
 	"github.com/Galdoba/choretracker/internal/constants"
+	"github.com/Galdoba/choretracker/internal/core/services"
+	"github.com/Galdoba/choretracker/internal/infrastructure"
+	"github.com/Galdoba/choretracker/internal/infrastructure/storage"
 )
 
 const (
@@ -17,9 +20,10 @@ const (
 )
 
 type AppContext struct {
-	config *Config
-	log    Logger
-	paths  map[string]string
+	config  *Config
+	log     Logger
+	paths   map[string]string
+	service *services.TaskService
 }
 
 func (actx *AppContext) Config() *Config {
@@ -36,6 +40,10 @@ func (actx *AppContext) ConfigPath() string {
 
 func (actx *AppContext) LogfilePath() string {
 	return actx.paths[logfile]
+}
+
+func (actx *AppContext) GetService() *services.TaskService {
+	return actx.service
 }
 
 func InitCli(appname string) (*AppContext, error) {
@@ -86,11 +94,21 @@ func InitCli(appname string) (*AppContext, error) {
 	if err := confirmFile(actx.LogfilePath()); err != nil {
 		return nil, err
 	}
+
+	validator := infrastructure.DefaultValidator()
+	store, err := storage.NewStorage(storage.JsonStorage, actx.config.StoragePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to setup storage: %v", err)
+	}
+	actx.service = services.NewTaskService(store, validator, actx.log)
+
 	return &actx, nil
 }
 
 func confirmFile(path string) error {
-	os.MkdirAll(filepath.Dir(path), 0755)
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return fmt.Errorf("failed to create log directory: %v", err)
+	}
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open log file: %v", err)

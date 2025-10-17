@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Galdoba/choretracker/internal/constants"
 	"github.com/Galdoba/choretracker/internal/core/domain"
 	"github.com/Galdoba/choretracker/internal/core/dto"
 	"github.com/Galdoba/choretracker/internal/core/ports"
@@ -28,83 +29,41 @@ func NewTaskService(storage ports.Storage, validator ports.Validator, logger por
 	}
 }
 
-type TaskRequest interface {
-	dto.CreateRequest | dto.ReadRequest | dto.UpdateRequest | dto.DeleteRequest
-}
-
-func (ts *TaskService) ServeRequest(req *dto.ToServiceRequest) (dto.FromServiceResponce, error) {
-	panic("HANDLE REQUEST FUNC")
-}
-
-// func HandleRequest[T TaskRequest](ts *TaskService, req T) (domain.Chore, error) {
-// 	switch r := any(req).(type) {
-// 	case dto.CreateRequest:
-// 		return domain.Chore{}, ts.CreateTask(r)
-// 	case dto.ReadRequest:
-// 		return ts.ReadTask(r)
-// 	case dto.UpdateRequest:
-// 		return domain.Chore{}, ts.UpdateTask(r)
-// 	case dto.DeleteRequest:
-// 		return domain.Chore{}, ts.DeleteTask(r)
-// 	}
-// 	return domain.Chore{}, ts.logError("request is of unknown type", nil)
-// }
-
-// func (ts *TaskService) CreateTask(r dto.CreateRequest) error {
-// 	ch, err := newChore(r)
-// 	if err != nil {
-// 		ts.logError("failed to create new chore", err)
-// 	}
-// 	if err := ts.Validator.Validate(ch); err != nil {
-// 		return ts.logError("failed to validate chore", err)
-// 	}
-// 	if err := updateNotificationTime(&ch); err != nil {
-// 		return ts.logError("failed to update notification time", err)
-// 	}
-// 	if err := ts.Storage.Create(ch); err != nil {
-// 		return ts.logError("failed to create chore in storage", err)
-// 	}
-// 	ts.Logger.Infof("new chore created: %v", ch.Key())
-// 	return nil
-// }
-
-func (ts *TaskService) CreateTask(r dto.ToServiceRequest) error {
-	if err := ts.Validator.ValidateRequest(r); err != nil {
-		return utils.LogError(ts.Logger, "invalid request", err)
+func (ts *TaskService) ServeRequest(req dto.ToServiceRequest) (*domain.Chore, error) {
+	switch req.Action {
+	case dto.Create:
+		return ts.CreateTask(req)
+	case dto.Read:
+		return ts.ReadTask(req)
+	case dto.Update:
+		return ts.UpdateTask(req)
+	case dto.Delete:
+		return ts.DeleteTask(req)
+	default:
+		return nil, fmt.Errorf("unknown request type: %v", req.RequestType())
 	}
-	ch, err := newChore(r)
+}
+
+func (ts *TaskService) CreateTask(req dto.ToServiceRequest) (*domain.Chore, error) {
+	ch := domain.Chore{}
+	if err := ts.Validator.ValidateRequest(req); err != nil {
+		return nil, utils.LogError(ts.Logger, "invalid request", err)
+	}
+	ch, err := newChoreFromRequest(req)
 	if err != nil {
-		ts.logError("failed to create new chore", err)
+		return nil, utils.LogError(ts.Logger, "failed to create new chore", err)
 	}
-	if err := ts.Validator.Validate(ch); err != nil {
-		return ts.logError("failed to validate chore", err)
+	if err := ch.Validate(); err != nil {
+		return nil, utils.LogError(ts.Logger, "failed to validate chore", err)
 	}
 	if err := updateNotificationTime(&ch); err != nil {
-		return ts.logError("failed to update notification time", err)
+		return nil, utils.LogError(ts.Logger, "failed to update notification time", err)
 	}
 	if err := ts.Storage.Create(ch); err != nil {
-		return ts.logError("failed to create chore in storage", err)
+		return nil, utils.LogError(ts.Logger, "failed to create chore in storage", err)
 	}
-	ts.Logger.Infof("new chore created: %v", ch.Key())
-	return nil
-}
-
-func newChore(cr dto.CreateRequest) (domain.Chore, error) {
-	ch := domain.Chore{}
-	openTime := time.Now()
-	ch.ID = openTime.Unix()
-	ch.Opened = openTime
-	updateChore(&ch, cr.Content())
-
-	if ch.Author == "" {
-		currentUser, err := user.Current()
-		if err != nil {
-			return ch, fmt.Errorf("failed to get current username: %v", err)
-		}
-		ch.Author = filepath.Base(currentUser.Username)
-	}
-
-	return ch, nil
+	ts.Logger.Infof("new chore created: %v (id=%v)", ch.Title, ch.ID)
+	return &ch, nil
 }
 
 func newChoreFromRequest(req dto.ToServiceRequest) (domain.Chore, error) {
@@ -115,7 +74,8 @@ func newChoreFromRequest(req dto.ToServiceRequest) (domain.Chore, error) {
 	openTime := time.Now()
 	ch.ID = openTime.Unix()
 	ch.Opened = openTime
-	updateChore(&ch, req.Content())
+
+	updateChore(&ch, req.Fields.Content())
 
 	if ch.Author == "" {
 		currentUser, err := user.Current()
@@ -128,10 +88,6 @@ func newChoreFromRequest(req dto.ToServiceRequest) (domain.Chore, error) {
 	return ch, nil
 }
 
-type idRetriever interface {
-	getID() *int64
-}
-
 func (ts TaskService) logError(msg string, err error) error {
 	ts.Logger.Errorf(msg)
 	if err == nil {
@@ -140,67 +96,69 @@ func (ts TaskService) logError(msg string, err error) error {
 	return fmt.Errorf("%v: %v", msg, err)
 }
 
-func loadFromStorage(ts *TaskService, id *int64) (domain.Chore, error) {
-	if id == nil {
-		return domain.Chore{}, utils.LogError(ts.Logger, "chore id not provided", nil)
+func loadFromStorage(ts *TaskService, id int64) (domain.Chore, error) {
+	if id == 0 {
+		return domain.Chore{}, utils.LogError(ts.Logger, "id can't be equal to 0", nil)
 	}
 
-	for _, err := range []bool{*id == 0} {
-		if err {
-			return domain.Chore{}, utils.LogError(ts.Logger, "id can't be equal to 0", nil)
-		}
-	}
-
-	ch, err := ts.Storage.Read(*id)
+	ch, err := ts.Storage.Read(id)
 	if err != nil {
 		return domain.Chore{}, utils.LogError(ts.Logger, "failed to read from storage", err)
 	}
 	return ch, nil
 }
 
-func (ts *TaskService) ReadTask(r dto.ReadRequest) (domain.Chore, error) {
-	ch, err := loadFromStorage(ts, r.ID)
-	if err != nil {
-		return domain.Chore{}, err
+func (ts *TaskService) ReadTask(req dto.ToServiceRequest) (*domain.Chore, error) {
+	ch := domain.Chore{}
+	if err := ts.Validator.ValidateRequest(req); err != nil {
+		return nil, utils.LogError(ts.Logger, "invalid request", err)
 	}
-	ts.Logger.Infof("chore read: %v", ch.Key())
-	return ch, nil
+	ch, err := loadFromStorage(ts, *req.Identity.ID)
+	if err != nil {
+		return nil, err
+	}
+	ts.Logger.Infof("chore read: '%v' (id=%v)", ch.Title, ch.ID)
+	return &ch, nil
 }
 
-func (ts *TaskService) UpdateTask(r dto.UpdateRequest) error {
-	ch, err := loadFromStorage(ts, r.ID)
+func (ts *TaskService) UpdateTask(req dto.ToServiceRequest) (*domain.Chore, error) {
+	ch := domain.Chore{}
+	if err := ts.Validator.ValidateRequest(req); err != nil {
+		return nil, utils.LogError(ts.Logger, "invalid request", err)
+	}
+	ch, err := loadFromStorage(ts, *req.Identity.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	updateChore(&ch, r.Content())
-
-	if err := ts.Validator.Validate(ch); err != nil {
-		return ts.logError("failed to validate updated chore", err)
-	}
+	updateChore(&ch, req.Fields.Content())
 
 	if err := updateNotificationTime(&ch); err != nil {
-		return ts.logError("failed to update notification time", err)
+		return nil, ts.logError("failed to update notification time", err)
 	}
 	if err := ts.Storage.Update(ch); err != nil {
-		return ts.logError("failed to update chore in storage", err)
+		return nil, ts.logError("failed to update chore in storage", err)
 	}
-	ts.Logger.Infof("chore %v updated", ch.Key())
 
-	return nil
+	ts.Logger.Infof("chore updated: '%v' (id=%v)", ch.Title, ch.ID)
+	return &ch, nil
 }
 
-func (ts *TaskService) DeleteTask(r dto.DeleteRequest) error {
-	ch, err := loadFromStorage(ts, r.ID)
+func (ts *TaskService) DeleteTask(req dto.ToServiceRequest) (*domain.Chore, error) {
+	if err := ts.Validator.ValidateRequest(req); err != nil {
+		return nil, utils.LogError(ts.Logger, "invalid request", err)
+	}
+	ch, err := loadFromStorage(ts, *req.Identity.ID)
 	if err != nil {
-		return err
+		return nil, utils.LogError(ts.Logger, "failed to load chore from storage", err)
 	}
-	key := ch.Key()
+	title := ch.Title
+	id := ch.ID
 	if err := ts.Storage.Delete(ch.ID); err != nil {
-		return ts.logError("failed to delete chore", err)
+		return nil, utils.LogError(ts.Logger, "failed to delete chore", err)
 	}
-	ts.Logger.Infof("chore %v deleted", key)
-	return nil
+	ts.Logger.Infof("chore deleted: '%v' (id=%v)", title, id)
+	return nil, nil
 }
 
 func updateNotificationTime(ch *domain.Chore) error {
@@ -212,14 +170,24 @@ func updateNotificationTime(ch *domain.Chore) error {
 	return nil
 }
 
-func updateChore(ch *domain.Chore, r dto.ChoreContent) {
-	ch.Title = setUpdated(ch.Title, r.Title)
-	ch.Description = setUpdated(ch.Description, r.Description)
-	ch.Author = setUpdated(ch.Author, r.Author)
-	ch.Schedule = setUpdated(ch.Schedule, r.Schedule)
-	ch.Comment = setUpdated(ch.Comment, r.Comment)
+func updateChore(ch *domain.Chore, c map[string]string) {
+	if title, ok := c[constants.Fld_Title]; ok {
+		ch.Title = setUpdated(ch.Title, title)
+	}
+	if desc, ok := c[constants.Fld_Descr]; ok {
+		ch.Description = setUpdated(ch.Description, desc)
+	}
+	if author, ok := c[constants.Fld_Author]; ok {
+		ch.Author = setUpdated(ch.Author, author)
+	}
+	if schedule, ok := c[constants.Fld_Schedule]; ok {
+		ch.Schedule = setUpdated(ch.Schedule, schedule)
+	}
+	if comment, ok := c[constants.Fld_Comment]; ok {
+		ch.Comment = setUpdated(ch.Comment, comment)
+	}
 }
 
-func setUpdated(old string, new *string) string {
-	return utils.SetUpdatedField(old, new)
+func setUpdated(old string, new string) string {
+	return utils.SetUpdatedField(old, &new)
 }

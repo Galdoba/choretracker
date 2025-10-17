@@ -3,6 +3,8 @@ package dto
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/Galdoba/choretracker/internal/constants"
 )
 
 const (
@@ -18,8 +20,22 @@ type ToServiceRequest struct {
 	Fields   ChoreContent
 }
 
+func (res *ToServiceRequest) RequestType() string {
+	return res.Action
+}
+
 type ChoreIdentity struct {
 	ID *int64 `json:"id" validate:"required"`
+}
+
+func (ci *ChoreIdentity) GetID() (int64, bool) {
+	if ci.ID == nil {
+		return 0, false
+	}
+	if *ci.ID == 0 {
+		return 0, false
+	}
+	return *ci.ID, true
 }
 
 type ChoreContent struct {
@@ -30,6 +46,26 @@ type ChoreContent struct {
 	Comment     *string `json:"comment" validate:"omitempty"`
 }
 
+func (cnt *ChoreContent) Content() map[string]string {
+	c := make(map[string]string)
+	if cnt.Title != nil {
+		c[constants.Fld_Title] = *cnt.Title
+	}
+	if cnt.Description != nil {
+		c[constants.Fld_Descr] = *cnt.Description
+	}
+	if cnt.Author != nil {
+		c[constants.Fld_Author] = *cnt.Author
+	}
+	if cnt.Schedule != nil {
+		c[constants.Fld_Schedule] = *cnt.Schedule
+	}
+	if cnt.Comment != nil {
+		c[constants.Fld_Comment] = *cnt.Comment
+	}
+	return c
+}
+
 func UnmarshalRequest(data []byte) (ToServiceRequest, error) {
 	req := ToServiceRequest{}
 	if err := json.Unmarshal(data, &req); err != nil {
@@ -38,81 +74,106 @@ func UnmarshalRequest(data []byte) (ToServiceRequest, error) {
 	return req, nil
 }
 
-func (req *ToServiceRequest) Id() *int64 {
-	return req.Identity.ID
+func (req *ToServiceRequest) GetID() (int64, bool) {
+	if req.Identity.ID == nil {
+		return 0, false
+	}
+	return *req.Identity.ID, true
 }
 
-func (req *ToServiceRequest) Content() ChoreContent {
-	return req.Fields
+func (req *ToServiceRequest) InjectID(id int64) {
+	if id == 0 {
+		return
+	}
+	req.Identity.ID = &id
+}
+
+func (req *ToServiceRequest) InjectContent(content map[string]string) {
+	if val, ok := content[constants.Fld_Title]; ok {
+		req.Fields.Title = &val
+	}
+	if val, ok := content[constants.Fld_Descr]; ok {
+		req.Fields.Description = &val
+	}
+	if val, ok := content[constants.Fld_Author]; ok {
+		req.Fields.Author = &val
+	}
+	if val, ok := content[constants.Fld_Schedule]; ok {
+		req.Fields.Schedule = &val
+	}
+	if val, ok := content[constants.Fld_Comment]; ok {
+		req.Fields.Comment = &val
+	}
+
 }
 
 ///////////////////////depreacated
 
-type CreateRequest struct {
-	ChoreContent
-}
+// type CreateRequest struct {
+// 	ChoreContent
+// }
 
-func UnmarshalCreateRequest(data []byte) (CreateRequest, error) {
-	r := CreateRequest{}
-	if err := json.Unmarshal(data, &r); err != nil {
-		return r, err
-	}
-	return r, nil
-}
+// func UnmarshalCreateRequest(data []byte) (CreateRequest, error) {
+// 	r := CreateRequest{}
+// 	if err := json.Unmarshal(data, &r); err != nil {
+// 		return r, err
+// 	}
+// 	return r, nil
+// }
 
-func (cr *CreateRequest) Content() ChoreContent {
-	return cr.ChoreContent
-}
+// func (cr *CreateRequest) Content() ChoreContent {
+// 	return cr.ChoreContent
+// }
 
-type ReadRequest struct {
-	ChoreIdentity
-}
+// type ReadRequest struct {
+// 	ChoreIdentity
+// }
 
-func UnmarshalReadRequest(data []byte) (ReadRequest, error) {
-	r := ReadRequest{}
-	if err := json.Unmarshal(data, &r); err != nil {
-		return r, err
-	}
-	return r, nil
-}
+// func UnmarshalReadRequest(data []byte) (ReadRequest, error) {
+// 	r := ReadRequest{}
+// 	if err := json.Unmarshal(data, &r); err != nil {
+// 		return r, err
+// 	}
+// 	return r, nil
+// }
 
-func (cr *ReadRequest) Id() *int64 {
-	return cr.ID
-}
+// func (cr *ReadRequest) Id() *int64 {
+// 	return cr.ID
+// }
 
-type UpdateRequest struct {
-	ChoreIdentity
-	ChoreContent
-}
+// type UpdateRequest struct {
+// 	ChoreIdentity
+// 	ChoreContent
+// }
 
-func UnmarshalUpdateRequest(data []byte) (UpdateRequest, error) {
-	r := UpdateRequest{}
-	if err := json.Unmarshal(data, &r); err != nil {
-		return r, err
-	}
-	return r, nil
-}
+// func UnmarshalUpdateRequest(data []byte) (UpdateRequest, error) {
+// 	r := UpdateRequest{}
+// 	if err := json.Unmarshal(data, &r); err != nil {
+// 		return r, err
+// 	}
+// 	return r, nil
+// }
 
-func (ur *UpdateRequest) Id() *int64 {
-	return ur.ID
-}
+// func (ur *UpdateRequest) Id() *int64 {
+// 	return ur.ID
+// }
 
-func (ur *UpdateRequest) Content() ChoreContent {
-	return ur.ChoreContent
-}
+// func (ur *UpdateRequest) Content() ChoreContent {
+// 	return ur.ChoreContent
+// }
 
-type DeleteRequest struct {
-	ChoreIdentity
-}
+// type DeleteRequest struct {
+// 	ChoreIdentity
+// }
 
-func UnmarshalDeleteRequest(data []byte) (DeleteRequest, error) {
-	r := DeleteRequest{}
-	if err := json.Unmarshal(data, &r); err != nil {
-		return r, err
-	}
-	return r, nil
-}
+// func UnmarshalDeleteRequest(data []byte) (DeleteRequest, error) {
+// 	r := DeleteRequest{}
+// 	if err := json.Unmarshal(data, &r); err != nil {
+// 		return r, err
+// 	}
+// 	return r, nil
+// }
 
-func (dr *DeleteRequest) Id() *int64 {
-	return dr.ID
-}
+// func (dr *DeleteRequest) Id() *int64 {
+// 	return dr.ID
+// }

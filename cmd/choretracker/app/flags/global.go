@@ -1,11 +1,14 @@
 package flags
 
 import (
+	"fmt"
+
 	"github.com/urfave/cli/v3"
 )
 
 const (
 	GLOBAL_MODE       = "run-mode"
+	SERVER_PORT       = "port"
 	VALUE_MODE_CLI    = "cli"
 	VALUE_MODE_TUI    = "tui"
 	VALUE_MODE_SERVER = "server"
@@ -22,6 +25,22 @@ var MODE = cli.StringFlag{
 	Usage:       "'tui', 'cli' or 'server'",
 	DefaultText: "tui",
 	Value:       "tui",
+}
+
+var PORT = cli.IntFlag{
+	Name:        SERVER_PORT,
+	DefaultText: "42000",
+	Usage:       "port to start server on",
+	Value:       42000,
+	Aliases:     []string{"p"},
+	Validator:   validatePort,
+}
+
+func validatePort(port int) error {
+	if port < 42000 || port > 65000 {
+		return fmt.Errorf("port must be between 42000 and 65000")
+	}
+	return nil
 }
 
 var TITLE = cli.StringFlag{

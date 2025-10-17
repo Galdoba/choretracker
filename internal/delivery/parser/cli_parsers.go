@@ -9,50 +9,75 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func ParseCliArgsCreate(c *cli.Command) (dto.CreateRequest, error) {
-	r := dto.CreateRequest{}
+func ParseCliCommand(c *cli.Command) (dto.ToServiceRequest, error) {
+	req := dto.ToServiceRequest{}
 	switch c.Name {
 	case constants.AddCommand:
-		r.ChoreContent = parseContent(c)
-	default:
-		return r, fmt.Errorf("command '%v' does not use CreateRequest", c.Name)
-	}
-	return r, nil
-}
-
-func ParseCliArgsRead(c *cli.Command) (dto.ReadRequest, error) {
-	r := dto.ReadRequest{}
-	switch c.Name {
+		req.Action = dto.Create
+		req.Identity = parseID(c)
+		req.Fields = parseContent(c)
 	case constants.GetCommand:
-		r.ChoreIdentity = parseID(c)
-	default:
-		return r, fmt.Errorf("command '%v' does not use ReadRequest", c.Name)
-	}
-	return r, nil
-}
-
-func ParseCliArgsUpdate(c *cli.Command) (dto.UpdateRequest, error) {
-	r := dto.UpdateRequest{}
-	switch c.Name {
+		req.Action = dto.Read
+		req.Identity = parseID(c)
+		req.Fields = parseContent(c)
 	case constants.UpdateCommand:
-		r.ChoreIdentity = parseID(c)
-		r.ChoreContent = parseContent(c)
+		req.Action = dto.Update
+		req.Identity = parseID(c)
+		req.Fields = parseContent(c)
+	case constants.DeleteCommand:
+		req.Action = dto.Delete
+		req.Identity = parseID(c)
+		req.Fields = parseContent(c)
 	default:
-		return r, fmt.Errorf("command '%v' does not use UpdateRequest", c.Name)
+		return req, fmt.Errorf("failed to parse command flags")
 	}
-	return r, nil
+	return req, nil
 }
 
-func ParseCliArgsDelete(c *cli.Command) (dto.DeleteRequest, error) {
-	r := dto.DeleteRequest{}
-	switch c.Name {
-	case constants.DeleteCommand:
-		r.ChoreIdentity = parseID(c)
-	default:
-		return r, fmt.Errorf("command '%v' does not use DeleteRequest", c.Name)
-	}
-	return r, nil
-}
+// func ParseCliArgsCreate(c *cli.Command) (dto.CreateRequest, error) {
+// 	r := dto.CreateRequest{}
+// 	switch c.Name {
+// 	case constants.AddCommand:
+// 		r.ChoreContent = parseContent(c)
+// 	default:
+// 		return r, fmt.Errorf("command '%v' does not use CreateRequest", c.Name)
+// 	}
+// 	return r, nil
+// }
+
+// func ParseCliArgsRead(c *cli.Command) (dto.ReadRequest, error) {
+// 	r := dto.ReadRequest{}
+// 	switch c.Name {
+// 	case constants.GetCommand:
+// 		r.ChoreIdentity = parseID(c)
+// 	default:
+// 		return r, fmt.Errorf("command '%v' does not use ReadRequest", c.Name)
+// 	}
+// 	return r, nil
+// }
+
+// func ParseCliArgsUpdate(c *cli.Command) (dto.UpdateRequest, error) {
+// 	r := dto.UpdateRequest{}
+// 	switch c.Name {
+// 	case constants.UpdateCommand:
+// 		r.ChoreIdentity = parseID(c)
+// 		r.ChoreContent = parseContent(c)
+// 	default:
+// 		return r, fmt.Errorf("command '%v' does not use UpdateRequest", c.Name)
+// 	}
+// 	return r, nil
+// }
+
+// func ParseCliArgsDelete(c *cli.Command) (dto.DeleteRequest, error) {
+// 	r := dto.DeleteRequest{}
+// 	switch c.Name {
+// 	case constants.DeleteCommand:
+// 		r.ChoreIdentity = parseID(c)
+// 	default:
+// 		return r, fmt.Errorf("command '%v' does not use DeleteRequest", c.Name)
+// 	}
+// 	return r, nil
+// }
 
 func parseContent(c *cli.Command) dto.ChoreContent {
 	cntnt := dto.ChoreContent{}

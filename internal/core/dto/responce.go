@@ -1,6 +1,6 @@
 package dto
 
-type FromServiceResponce interface {
-	Content() ChoreContent
-	Id() ChoreIdentity
-}
+// type FromServiceResponce interface {
+// 	GetID() (int64, bool)
+// 	Content() map[string]string
+// }

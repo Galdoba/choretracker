@@ -22,6 +22,7 @@ func NewApp(actx *appcontext.AppContext) *cli.Command {
 			subcommands.UpdateChore(actx),
 			subcommands.DeleteChore(actx),
 			subcommands.Config(actx),
+			subcommands.Serve(actx),
 		},
 		Flags: []cli.Flag{
 			&flags.MODE,

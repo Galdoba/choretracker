@@ -14,12 +14,8 @@ import (
 
 func AddAction(actx *appcontext.AppContext) cli.ActionFunc {
 	return func(ctx context.Context, c *cli.Command) error {
-		ts, err := startTaskService(actx)
-		if err != nil {
-			return fmt.Errorf("failed to start service: %v", err)
-		}
-
-		r, err := parser.ParseCliArgsCreate(c)
+		ts := actx.GetService()
+		r, err := parser.ParseCliCommand(c)
 		if err != nil {
 			ts.Logger.Errorf("failed to parse request: %v", err)
 			return fmt.Errorf("failed to parse request: %v", err)
@@ -29,15 +25,14 @@ func AddAction(actx *appcontext.AppContext) cli.ActionFunc {
 		case flags.VALUE_MODE_CLI:
 			//do nothing: expected to have data from flags --title and --shedule
 		case flags.VALUE_MODE_TUI:
-			r, err = tui.EditCreateRequest(r)
-			if err != nil {
+			if err := tui.EditRequest(&r); err != nil {
 				return utils.LogError(ts.Logger, "failed to edit request", err)
 			}
 		case flags.VALUE_MODE_SERVER:
 			return fmt.Errorf("server mode not implemented")
 		}
 
-		if err := ts.CreateTask(r); err != nil {
+		if _, err := ts.ServeRequest(r); err != nil {
 			ts.Logger.Errorf("task failed: %v", err)
 			return err
 		}

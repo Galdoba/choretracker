@@ -7,16 +7,14 @@ import (
 	"github.com/Galdoba/choretracker/cmd/choretracker/app/flags"
 	"github.com/Galdoba/choretracker/internal/appcontext"
 	"github.com/Galdoba/choretracker/internal/delivery/parser"
+	"github.com/Galdoba/choretracker/internal/delivery/tui"
 	"github.com/urfave/cli/v3"
 )
 
 func DeleteAction(actx *appcontext.AppContext) cli.ActionFunc {
 	return func(ctx context.Context, c *cli.Command) error {
-		ts, err := startTaskService(actx)
-		if err != nil {
-			return fmt.Errorf("failed to start service: %v", err)
-		}
-		r, err := parser.ParseCliArgsDelete(c)
+		ts := actx.GetService()
+		req, err := parser.ParseCliCommand(c)
 		if err != nil {
 			ts.Logger.Errorf("failed to parse request: %v", err)
 			return fmt.Errorf("failed to parse request: %v", err)
@@ -27,21 +25,21 @@ func DeleteAction(actx *appcontext.AppContext) cli.ActionFunc {
 		case "":
 			return fmt.Errorf("run mode not set\nuse '--run-mode' flag")
 		case flags.VALUE_MODE_CLI:
-			err := ts.DeleteTask(r)
+			_, err := ts.ServeRequest(req)
 			if err != nil {
 				ts.Logger.Errorf("task failed: %v", err)
 				return err
 			}
 		case flags.VALUE_MODE_TUI:
-			chr, err := getChoreTUI(ts.Storage)
+			chr, err := tui.SelectChore(ts)
 			if err != nil {
 				ts.Logger.Errorf("task failed: %v", err)
 				return err
 			}
-			if r.ID == nil || *r.ID == 0 {
-				r.ID = &chr.ID
+			if id, ok := chr.GetID(); ok {
+				req.InjectID(id)
 			}
-			err = ts.DeleteTask(r)
+			_, err = ts.ServeRequest(req)
 			if err != nil {
 				ts.Logger.Errorf("task failed: %v", err)
 				return err

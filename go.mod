@@ -3,9 +3,10 @@ module github.com/Galdoba/choretracker
 go 1.25.1
 
 require (
-	github.com/Galdoba/appcontext v0.0.0-20250917121635-7ecd9d5412b5
+	github.com/Galdoba/appcontext v0.0.0-20251019104001-86f48b03d1f0
 	github.com/Galdoba/consolio v0.0.0-20251015030028-caa2d1b090f1
 	github.com/charmbracelet/huh v0.8.0
+	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/urfave/cli/v3 v3.4.1
 )
 
@@ -32,7 +33,6 @@ require (
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/sys v0.36.0 // indirect

@@ -1,5 +1,5 @@
-github.com/Galdoba/appcontext v0.0.0-20250917121635-7ecd9d5412b5 h1:spj+YuEjotJIz3Clycpdbw1UDTA9szahxPadrGkvn4c=
-github.com/Galdoba/appcontext v0.0.0-20250917121635-7ecd9d5412b5/go.mod h1:J43ab4FhNGUsd0Y8ysCBsKIb4QoUtqNWlIHJaHrAo+8=
+github.com/Galdoba/appcontext v0.0.0-20251019104001-86f48b03d1f0 h1:+0tXSfZYIsyU588Pv4P+4IrdNlEOkXYzehuZxEVNNIs=
+github.com/Galdoba/appcontext v0.0.0-20251019104001-86f48b03d1f0/go.mod h1:J43ab4FhNGUsd0Y8ysCBsKIb4QoUtqNWlIHJaHrAo+8=
 github.com/Galdoba/consolio v0.0.0-20251015030028-caa2d1b090f1 h1:PIe8iQ3GeJwGaxJLtiYQokvprdG0sEI7od9c2faVaik=
 github.com/Galdoba/consolio v0.0.0-20251015030028-caa2d1b090f1/go.mod h1:DfcBVUbvZlhWKYjhmsS0mD2kiKPLTVtf3Kea1s46weU=
 github.com/MakeNowJust/heredoc v1.0.0 h1:cXCdzVdstXyiTqTvfqk9SDHpKNjxuom+DOlyEeQ4pzQ=

@@ -3,6 +3,8 @@ package dto
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"regexp"
 
 	"github.com/Galdoba/choretracker/internal/constants"
 )
@@ -74,6 +76,11 @@ func UnmarshalRequest(data []byte) (ToServiceRequest, error) {
 	return req, nil
 }
 
+func UnURL(url string) *ChoreContent {
+	// cc := ChoreContent{}
+	// re := regexp.MustCompile(`/?()`)
+}
+
 func (req *ToServiceRequest) GetID() (int64, bool) {
 	if req.Identity.ID == nil {
 		return 0, false
@@ -106,74 +113,3 @@ func (req *ToServiceRequest) InjectContent(content map[string]string) {
 	}
 
 }
-
-///////////////////////depreacated
-
-// type CreateRequest struct {
-// 	ChoreContent
-// }
-
-// func UnmarshalCreateRequest(data []byte) (CreateRequest, error) {
-// 	r := CreateRequest{}
-// 	if err := json.Unmarshal(data, &r); err != nil {
-// 		return r, err
-// 	}
-// 	return r, nil
-// }
-
-// func (cr *CreateRequest) Content() ChoreContent {
-// 	return cr.ChoreContent
-// }
-
-// type ReadRequest struct {
-// 	ChoreIdentity
-// }
-
-// func UnmarshalReadRequest(data []byte) (ReadRequest, error) {
-// 	r := ReadRequest{}
-// 	if err := json.Unmarshal(data, &r); err != nil {
-// 		return r, err
-// 	}
-// 	return r, nil
-// }
-
-// func (cr *ReadRequest) Id() *int64 {
-// 	return cr.ID
-// }
-
-// type UpdateRequest struct {
-// 	ChoreIdentity
-// 	ChoreContent
-// }
-
-// func UnmarshalUpdateRequest(data []byte) (UpdateRequest, error) {
-// 	r := UpdateRequest{}
-// 	if err := json.Unmarshal(data, &r); err != nil {
-// 		return r, err
-// 	}
-// 	return r, nil
-// }
-
-// func (ur *UpdateRequest) Id() *int64 {
-// 	return ur.ID
-// }
-
-// func (ur *UpdateRequest) Content() ChoreContent {
-// 	return ur.ChoreContent
-// }
-
-// type DeleteRequest struct {
-// 	ChoreIdentity
-// }
-
-// func UnmarshalDeleteRequest(data []byte) (DeleteRequest, error) {
-// 	r := DeleteRequest{}
-// 	if err := json.Unmarshal(data, &r); err != nil {
-// 		return r, err
-// 	}
-// 	return r, nil
-// }
-
-// func (dr *DeleteRequest) Id() *int64 {
-// 	return dr.ID
-// }
